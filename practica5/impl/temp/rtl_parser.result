@@ -1,10 +1,10 @@
 [
  {
-  "InstFile" : "/home/uriel/DSD/practica5/src/CONDEC.vhd",
-  "InstLine" : 6,
-  "InstName" : "CONDEC",
-  "ModuleFile" : "/home/uriel/DSD/practica5/src/CONDEC.vhd",
-  "ModuleLine" : 6,
-  "ModuleName" : "CONDEC"
+  "InstFile" : "/home/uriel/DSD/DSDZZZ/practica5/src/CONDEC.vhd",
+  "InstLine" : 5,
+  "InstName" : "condec",
+  "ModuleFile" : "/home/uriel/DSD/DSDZZZ/practica5/src/CONDEC.vhd",
+  "ModuleLine" : 5,
+  "ModuleName" : "condec"
  }
 ]

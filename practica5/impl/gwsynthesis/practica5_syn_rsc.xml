@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="CONDEC" Register="37" Alu="24" Lut="74" T_Register="37(37)" T_Alu="24(24)" T_Lut="74(74)"/>
+<Module name="condec" Register="34" Alu="25" Lut="64" T_Register="34(34)" T_Alu="25(25)" T_Lut="64(64)"/>

@@ -1,136 +1,118 @@
-        LIBRARY IEEE;
-        USE IEEE.STD_LOGIC_1164.ALL;
-        USE IEEE.STD_LOGIC_ARITH.ALL;
-        USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-        ENTITY CONDEC IS
-            PORT(
-                CLK_27M : IN STD_LOGIC;  -- Reloj de 27MHz
-                CLR     : IN STD_LOGIC;
-                C       : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-                E       : IN STD_LOGIC_VECTOR(9 DOWNTO 0); --para el comparador de mag
-                DISPLAY : INOUT STD_LOGIC_VECTOR(6 DOWNTO 0)
-            );
-        END ENTITY;
+entity condec is 
+    port (
+        clk, clr : in std_logic;
+        c : in std_logic_vector(1 downto 0);
+        e: in std_logic_vector(9 downto 0); 
+        display : inout std_logic_vector(6 downto 0)
+    );
+end entity;
 
-        ARCHITECTURE A_CONDEC OF CONDEC IS
-            CONSTANT DIG0 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "1000000";
-            CONSTANT DIG1 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "1111001";
-            CONSTANT DIG2 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "0100100";  
-            CONSTANT DIG3 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "0110000";
-            CONSTANT DIG4 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "0011001";
-            CONSTANT DIG5 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "0010010";
-            CONSTANT DIG6 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "0000010";
-            CONSTANT DIG7 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "1111000";
-            CONSTANT DIG8 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "0000000";
-            CONSTANT DIG9 : STD_LOGIC_VECTOR(6 DOWNTO 0) := "0010000";
-            CONSTANT APAG : STD_LOGIC_VECTOR(6 DOWNTO 0) := "1111111";
-            
-            SIGNAL CLK_1S : STD_LOGIC := '0';
-            SIGNAL COUNT  : INTEGER RANGE 0 TO 27000000:= 0;
-            SIGNAL INDEX  : INTEGER RANGE 0 TO 9 :=0; 
-        BEGIN
-            
-            PROCESS (CLK_27M)
-            BEGIN
-                IF RISING_EDGE(CLK_27M) THEN
-                    IF COUNT = 27000000 THEN
-                        CLK_1S <= NOT CLK_1S;
-                        COUNT <= 0;
-                    ELSE
-                        COUNT <= COUNT + 1;
-                    END IF;
-                END IF;
-            END PROCESS;
-            
-            -- Lógica del contador
-            PROCESS (CLK_1S, CLR, DISPLAY, C)
-            BEGIN
-                IF (CLR = '1') THEN
-                    DISPLAY <= DIG0;
-                ELSIF (CLK_1S'EVENT AND CLK_1S = '1') THEN
-                    CASE C IS
-                        WHEN "10" => -- Retener dato
-                        CASE DISPLAY IS
-                                WHEN DIG0 => DISPLAY <= DIG0;
-                                WHEN DIG1 => DISPLAY <= DIG1;
-                                WHEN DIG2 => DISPLAY <= DIG2;
-                                WHEN DIG3 => DISPLAY <= DIG3;
-                                WHEN DIG4 => DISPLAY <= DIG4;
-                                WHEN DIG5 => DISPLAY <= DIG5;
-                                WHEN DIG6 => DISPLAY <= DIG6;
-                                WHEN DIG7 => DISPLAY <= DIG7;
-                                WHEN DIG8 => DISPLAY <= DIG8;
-                                WHEN DIG9 => DISPLAY <= DIG9;
-                                WHEN OTHERS => DISPLAY <= DIG0;
-                            END CASE;
-                        WHEN "00" => -- Incrementar
-                            CASE DISPLAY IS
-                                WHEN DIG0 => DISPLAY <= DIG1;
-                                WHEN DIG1 => DISPLAY <= DIG2;
-                                WHEN DIG2 => DISPLAY <= DIG3;
-                                WHEN DIG3 => DISPLAY <= DIG4;
-                                WHEN DIG4 => DISPLAY <= DIG5;
-                                WHEN DIG5 => DISPLAY <= DIG6;
-                                WHEN DIG6 => DISPLAY <= DIG7;
-                                WHEN DIG7 => DISPLAY <= DIG8;
-                                WHEN DIG8 => DISPLAY <= DIG9;
-                                WHEN DIG9 => DISPLAY <= DIG0;
-                                WHEN OTHERS => DISPLAY <= DIG0;
-                            END CASE;
-                        WHEN "01" => -- Decrementar
-                            CASE DISPLAY IS
-                                WHEN DIG0 => DISPLAY <= DIG9;
-                                WHEN DIG9 => DISPLAY <= DIG8;
-                                WHEN DIG8 => DISPLAY <= DIG7;
-                                WHEN DIG7 => DISPLAY <= DIG6;
-                                WHEN DIG6 => DISPLAY <= DIG5;
-                                WHEN DIG5 => DISPLAY <= DIG4;
-                                WHEN DIG4 => DISPLAY <= DIG3;
-                                WHEN DIG3 => DISPLAY <= DIG2;
-                                WHEN DIG2 => DISPLAY <= DIG1;
-                                WHEN DIG1 => DISPLAY <= DIG0;
-                                WHEN OTHERS => DISPLAY <= DIG0;
-                            END CASE;
-                        WHEN OTHERS => -- Cargar el dato "11"
-                                IF E(9) = '1' THEN
-                                    INDEX<=9;
-                                ELSIF E(8) = '1' THEN
-                                    INDEX<=8;
-                                ELSIF E(7) = '1' THEN
-                                    INDEX<=7;
-                                ELSIF E(6) = '1' THEN
-                                    INDEX<=6;
-                                ELSIF E(5) = '1' THEN
-                                    INDEX<=5;
-                                ELSIF E(4) = '1' THEN
-                                    INDEX<=4;
-                                ELSIF E(3) = '1' THEN
-                                    INDEX<=3;
-                                ELSIF E(2) = '1' THEN
-                                    INDEX<=2;
-                                ELSIF E(1) = '1' THEN
-                                    INDEX<=1;
-                                ELSE 
-                                    INDEX <=0;
-                            END IF;
+architecture a_condec of condec is
+    constant dig0 : std_logic_vector(6 downto 0) := "1111110";
+    constant dig1 : std_logic_vector(6 downto 0) := "0110000";
+    constant dig2 : std_logic_vector(6 downto 0) := "1101101";
+    constant dig3 : std_logic_vector(6 downto 0) := "1111001";
+    constant dig4 : std_logic_vector(6 downto 0) := "0110011";
+    constant dig5 : std_logic_vector(6 downto 0) := "1011011";
+    constant dig6 : std_logic_vector(6 downto 0) := "1011111";
+    constant dig7 : std_logic_vector(6 downto 0) := "1110000";
+    constant dig8 : std_logic_vector(6 downto 0) := "1111111";
+    constant dig9 : std_logic_vector(6 downto 0) := "1111011";
+    constant max_count : natural := 50000000;
+    signal enable : std_logic := '0';
+    signal count  : natural range 0 to max_count := 0;
 
-                        CASE INDEX IS 
-                            WHEN 0 => DISPLAY <= DIG0;
-                            WHEN 1 => DISPLAY <= DIG1;
-                            WHEN 2 => DISPLAY <= DIG2;
-                            WHEN 3 => DISPLAY <= DIG3;
-                            WHEN 4 => DISPLAY <= DIG4;
-                            WHEN 5 => DISPLAY <= DIG5;
-                            WHEN 6 => DISPLAY <= DIG6;
-                            WHEN 7 => DISPLAY <= DIG7;
-                            WHEN 8 => DISPLAY <= DIG8;
-                            WHEN 9 => DISPLAY <= DIG9;
-                        END CASE;           
+    signal priority_value : std_logic_vector(6 downto 0) := "0000000"; 
+begin
+    
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if count = max_count - 1 then
+                enable <= '1';
+                count <= 0;
+            else
+                enable <= '0';
+                count <= count + 1;
+            end if;
+        end if;
+    end process;
 
-                    END CASE;
-                END IF;
-            END PROCESS;
+    -- Codificador de prioridad
+    process (e)
+    begin
+        if e(9) = '1' then
+            priority_value <= dig9;
+        elsif e(8) = '1' then
+            priority_value <= dig8;
+        elsif e(7) = '1' then
+            priority_value <= dig7;
+        elsif e(6) = '1' then
+            priority_value <= dig6;
+        elsif e(5) = '1' then
+            priority_value <= dig5;
+        elsif e(4) = '1' then
+            priority_value <= dig4;
+        elsif e(3) = '1' then
+            priority_value <= dig3;
+        elsif e(2) = '1' then
+            priority_value <= dig2;
+        elsif e(1) = '1' then
+            priority_value <= dig1;
+        elsif e(0) = '1' then
+            priority_value <= dig0;
+        else
+            priority_value <= "0000000"; 
+        end if;
+    end process;
 
+    -- divisor
+    process (clr, enable)
+    begin
+        if (clr = '0') then
+            display <= dig0;
+        elsif (rising_edge(enable)) then
+            case c is
+                when "00" =>  -- Contador ascendente
+                    case display is
+                        when dig0 => display <= dig1;
+                        when dig1 => display <= dig2;
+                        when dig2 => display <= dig3;
+                        when dig3 => display <= dig4;
+                        when dig4 => display <= dig5;
+                        when dig5 => display <= dig6;
+                        when dig6 => display <= dig7;
+                        when dig7 => display <= dig8;
+                        when dig8 => display <= dig9;
+                        when dig9 => display <= dig0;
+                        when others => display <= "0000000"; -- apagar 
+                    end case;
 
-        END A_CONDEC;
+                when "01" =>  -- Contador descendente
+                    case display is
+                        when dig0 => display <= dig9;
+                        when dig1 => display <= dig0;
+                        when dig2 => display <= dig1;
+                        when dig3 => display <= dig2;
+                        when dig4 => display <= dig3;
+                        when dig5 => display <= dig4;
+                        when dig6 => display <= dig5;
+                        when dig7 => display <= dig6;
+                        when dig8 => display <= dig7;
+                        when dig9 => display <= dig8;
+                        when others => display <= "0000000"; -- apagar 
+                    end case;
+
+                when "10" =>  -- mostrar valor del codificador de prioridad
+                    display <= priority_value;
+
+                when others =>  -- mantener el valor actual en el display
+                    display <= display;
+            end case;
+        end if;
+    end process;
+end architecture a_condec;
