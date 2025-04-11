@@ -1,10 +1,10 @@
 [
  {
-  "InstFile" : "/home/uriel/DSD/practica4/src/contador.vhd",
+  "InstFile" : "/home/uriel/DSD/DSDZZZ/practica4/src/contador.vhd",
   "InstLine" : 5,
-  "InstName" : "contador",
-  "ModuleFile" : "/home/uriel/DSD/practica4/src/contador.vhd",
+  "InstName" : "CONTADOR",
+  "ModuleFile" : "/home/uriel/DSD/DSDZZZ/practica4/src/contador.vhd",
   "ModuleLine" : 5,
-  "ModuleName" : "contador"
+  "ModuleName" : "CONTADOR"
  }
 ]

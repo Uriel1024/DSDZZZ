@@ -3,7 +3,7 @@
  "Files" : [
   {
    "Library" : "work",
-   "Path" : "/home/uriel/DSD/practica4/src/contador.vhd",
+   "Path" : "/home/uriel/DSD/DSDZZZ/practica4/src/contador.vhd",
    "Type" : "vhdl"
   }
  ],
@@ -11,7 +11,7 @@
 
  ],
  "LoopLimit" : 2000,
- "ResultFile" : "/home/uriel/DSD/practica4/impl/temp/rtl_parser.result",
+ "ResultFile" : "/home/uriel/DSD/DSDZZZ/practica4/impl/temp/rtl_parser.result",
  "Top" : "",
  "VerilogStd" : "verilog_2001",
  "VhdlStd" : "vhdl_93"
