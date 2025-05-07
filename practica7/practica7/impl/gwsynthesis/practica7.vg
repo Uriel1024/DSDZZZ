@@ -1,0 +1,176 @@
+//
+//Written by GowinSynthesis
+//Tool Version "V1.9.11"
+//Tue May  6 20:29:40 2025
+
+//Source file index table:
+//file0 "\/home/uriel/dsd/DSDZZZ/practica7/practica7/src/p7.vhd"
+`timescale 100 ps/100 ps
+module p7 (
+  clk,
+  clr,
+  sicd,
+  sici,
+  da,
+  con,
+  q
+)
+;
+input clk;
+input clr;
+input sicd;
+input sici;
+input [2:0] da;
+input [1:0] con;
+inout [2:0] q;
+wire clk_d;
+wire clr_d;
+wire sicd_d;
+wire sici_d;
+wire d_2_9;
+wire d_1_9;
+wire d_0_9;
+wire q_2_8;
+wire d_2_10;
+wire d_1_10;
+wire d_0_10;
+wire n106_7;
+wire [2:0] da_d;
+wire [1:0] con_d;
+wire [2:0] q_d;
+wire VCC;
+wire GND;
+  IBUF clk_ibuf (
+    .O(clk_d),
+    .I(clk) 
+);
+  IBUF clr_ibuf (
+    .O(clr_d),
+    .I(clr) 
+);
+  IBUF sicd_ibuf (
+    .O(sicd_d),
+    .I(sicd) 
+);
+  IBUF sici_ibuf (
+    .O(sici_d),
+    .I(sici) 
+);
+  IBUF da_0_ibuf (
+    .O(da_d[0]),
+    .I(da[0]) 
+);
+  IBUF da_1_ibuf (
+    .O(da_d[1]),
+    .I(da[1]) 
+);
+  IBUF da_2_ibuf (
+    .O(da_d[2]),
+    .I(da[2]) 
+);
+  IBUF con_0_ibuf (
+    .O(con_d[0]),
+    .I(con[0]) 
+);
+  IBUF con_1_ibuf (
+    .O(con_d[1]),
+    .I(con[1]) 
+);
+  OBUF q_0_obuf (
+    .O(q[0]),
+    .I(q_d[0]) 
+);
+  OBUF q_1_obuf (
+    .O(q[1]),
+    .I(q_d[1]) 
+);
+  OBUF q_2_obuf (
+    .O(q[2]),
+    .I(q_d[2]) 
+);
+  LUT3 d_2_s5 (
+    .F(d_2_9),
+    .I0(da_d[2]),
+    .I1(d_2_10),
+    .I2(con_d[1]) 
+);
+defparam d_2_s5.INIT=8'hAC;
+  LUT3 d_1_s5 (
+    .F(d_1_9),
+    .I0(da_d[1]),
+    .I1(d_1_10),
+    .I2(con_d[1]) 
+);
+defparam d_1_s5.INIT=8'hAC;
+  LUT3 d_0_s5 (
+    .F(d_0_9),
+    .I0(da_d[0]),
+    .I1(d_0_10),
+    .I2(con_d[1]) 
+);
+defparam d_0_s5.INIT=8'hA3;
+  LUT2 q_2_s5 (
+    .F(q_2_8),
+    .I0(con_d[0]),
+    .I1(con_d[1]) 
+);
+defparam q_2_s5.INIT=4'h7;
+  LUT3 d_2_s6 (
+    .F(d_2_10),
+    .I0(q_d[1]),
+    .I1(sicd_d),
+    .I2(con_d[0]) 
+);
+defparam d_2_s6.INIT=8'hAC;
+  LUT3 d_1_s6 (
+    .F(d_1_10),
+    .I0(q_d[0]),
+    .I1(sicd_d),
+    .I2(con_d[0]) 
+);
+defparam d_1_s6.INIT=8'hAC;
+  LUT3 d_0_s6 (
+    .F(d_0_10),
+    .I0(sici_d),
+    .I1(q_d[1]),
+    .I2(con_d[0]) 
+);
+defparam d_0_s6.INIT=8'h53;
+  DFFCE q_2_s3 (
+    .Q(q_d[2]),
+    .D(d_2_9),
+    .CLK(clk_d),
+    .CE(q_2_8),
+    .CLEAR(n106_7) 
+);
+defparam q_2_s3.INIT=1'b0;
+  DFFCE q_1_s2 (
+    .Q(q_d[1]),
+    .D(d_1_9),
+    .CLK(clk_d),
+    .CE(q_2_8),
+    .CLEAR(n106_7) 
+);
+defparam q_1_s2.INIT=1'b0;
+  DFFCE q_0_s2 (
+    .Q(q_d[0]),
+    .D(d_0_9),
+    .CLK(clk_d),
+    .CE(q_2_8),
+    .CLEAR(n106_7) 
+);
+defparam q_0_s2.INIT=1'b0;
+  INV n106_s2 (
+    .O(n106_7),
+    .I(clr_d) 
+);
+  VCC VCC_cZ (
+    .V(VCC)
+);
+  GND GND_cZ (
+    .G(GND)
+);
+  GSR GSR (
+    .GSRI(VCC) 
+);
+endmodule /* p7 */
