@@ -1,75 +1,68 @@
-library ieee;
-use ieee.std_logic_1164.all;
-USE IEEE.NUMERIC_STD.ALL;  
+-- Practica 7
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 
-    entity p7 is
-    port(
-        clk, clr, sicd, sici: in std_logic;
-        da : in std_logic_vector(2 downto 0);
-        con: in std_logic_vector(1 downto 0);
-        q : inout std_logic_vector(2 downto 0)
-);
-end entity;
+ENTITY p7 IS
+    PORT(
+        CLK, CLR, SICO, SICI : IN STD_LOGIC;
+        SEL : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+        PI : IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+        Q : INOUT STD_LOGIC_VECTOR (7 DOWNTO 0);
+        CLKOUT : BUFFER STD_LOGIC
+    );
+END ENTITY;
 
+ARCHITECTURE a_p7 OF p7 IS
+    SIGNAL D : STD_LOGIC_VECTOR (7 DOWNTO 0);
+    SIGNAL CRISTAL : STD_LOGIC;
+    SIGNAL CONTADOR : UNSIGNED (24 DOWNTO 0) := (OTHERS => '0');
+    CONSTANT DIVISOR1 : INTEGER := 27000000;
+BEGIN
 
+    PROCESS (CLK)
+    BEGIN
+        IF RISING_EDGE(CLK) THEN
+            CRISTAL <= CLK;
+            IF CONTADOR = DIVISOR1 THEN
+                CONTADOR <= (OTHERS => '0');
+                CLKOUT <= NOT CLKOUT;
+            ELSE
+                CONTADOR <= CONTADOR + 1;
+            END IF;
+        END IF;
+    END PROCESS;
 
-architecture a_p7 of p7 is 
-    
-    signal d: std_logic_vector(2 downto 0);
-    signal div_clk : std_logic := '0' ;
-    signal div_con: UNSIGNED(24 DOWNTO 0) := (others => '0');
-    
-begin 
+    MUX: PROCESS(SEL, Q, SICO, SICI, PI)
+    BEGIN
+        CASE SEL IS
+            WHEN "00" =>
+                D(7) <= SICO;
+                FOR I IN 6 DOWNTO 0 LOOP
+                    D(I) <= Q(I + 1);
+                END LOOP;
 
-divisor: process(clk)
-begin
-    if rising_edge(clk) then
-        if div_con = 26999999 then
-            div_con <= (others => '0');
-            div_clk <= '1';
-        else
-            div_con <= div_con + 1;
-            div_clk <= '0';
-        end if;
-       end if;
-end process;
+            WHEN "01" =>
+                D <= PI;
 
-M_2: Process(con,sicd,q,da)
-    begin
-    case con is
-        when "00" => d(2) <= sicd;
-        when "01" => d(2) <= q(1);
-        when "10" => d(2) <= da(2);
-        when others => d(2) <=q(2);
-    end case;
-end process M_2;
+            WHEN "10" =>
+                D(0) <= SICI;
+                FOR I IN 7 DOWNTO 1 LOOP
+                    D(I) <= Q(I - 1);
+                END LOOP;
 
-M_1: Process(con,sicd,q,da)
-    begin
-    case con is
-        when "00" => d(1) <= sicd;
-        when "01" => d(1) <= q(0);
-        when "10" => d(1) <= da(1);
-        when others => d(1) <=q(1);
-    end case;
-end process M_1;
+            WHEN OTHERS =>
+                D <= Q;
+        END CASE;
+    END PROCESS;
 
-M_0: Process(con,sici,q,da)
-    begin
-    case con is
-        when "00" => d(0) <= q(1);
-        when "01" => d(0) <= sici;
-        when "10" => d(0) <= da(0);
-        when others => d(0) <=q(0);
-    end case;
-end process M_0;
+    PROCESS (CLKOUT, CLR)
+    BEGIN
+        IF CLR = '0' THEN
+            Q <= (OTHERS => '0');  -- Reiniciar Q a ceros
+        ELSIF RISING_EDGE(CLKOUT) THEN
+            Q <= D;
+        END IF;
+    END PROCESS;
 
-process(clk, clr)
-    begin
-        if(clr ='0') then
-        q<= (others => '0');
-    elsif rising_edge(clk) then
-        q <= d;
-    end if;
-end process;
-end architecture;
+END ARCHITECTURE a_p7;
