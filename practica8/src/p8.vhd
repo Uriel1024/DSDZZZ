@@ -1,10 +1,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
-
 use ieee.numeric_std.all;
 
 entity p8 is
-    port( clk,clr,eco, eci: in std_logic;
+    port( clk,clr,ECD, ECI: in std_logic;
         c: in std_logic_vector(2 downto 0);
         e: in std_logic_vector(7 downto 0);
         q: inout std_logic_vector(7 downto 0);
@@ -15,11 +14,14 @@ end entity;
 
 architecture a_p8 of p8 is 
 SIGNAL CRISTAL : STD_LOGIC;
-SIGNAL CONTADOR : UNSIGNED (24 DOWNTO 0) := (OTHERS => '0');
-CONSTANT DIVISOR1 : INTEGER := 27000000;
+SIGNAL CONTADOR : UNSIGNED (31 DOWNTO 0) := (OTHERS => '0');
+CONSTANT DIVISOR1 : INTEGER := 13500000;
+SIGNAL Qs   : std_logic_vector (7 downto 0) := (OTHERS => '0');
+SIGNAL Gray : std_logic_vector (7 downto 0) := (OTHERS => '0'); 
+ 
 begin
-
-divisor:process  (CLK)
+--divisor de frecuencia
+process  (CLK)
     BEGIN
         IF RISING_EDGE(CLK) THEN
             CRISTAL <= CLK;
@@ -32,29 +34,47 @@ divisor:process  (CLK)
         END IF;
     END PROCESS;
 
+--Logica principal del programa
 process(clk, clr, c)    
     begin
         if (clr = '0') then
-            q <= "00000000";
+            q <= (others => '0');
+            Qs <= (others => '0');
         elsif rising_edge(clk) then
-    case c is
-    when "000" => q <= e;
-    when "001" => q <= std_logic_vector(unsigned(q) +1);
-    when "010" => q <= std_logic_vector(unsigned(q) -1);
-    when "011" => q(7) <= eco;
-        q<= to_stdlogicvector(to_bitvector(q) srl 1);
-    when "100"  => q(0) <= eci;
-        q<= to_stdlogicvector(to_bitvector(q) sll 1); 
-    when "101" => q <= q;
-    when "110" => 
-        q <= q(0) & q(7 downto 1);
-    when others =>  
-            q(7) <= q(7); -- el bit mas significativo se mantiene igual 
-            for i in 6 downto 0 loop   
-                q(i) <= q(i + 1) xor q(i);
-    end loop;
-    end case;
+        case c is 
+            when "000" => 
+                Qs <= e;
+                q <= e; 
+            when "001" =>
+                Qs <= std_logic_vector(unsigned(Qs) + 1);   
+                q <= std_logic_vector(unsigned(Q) + 1);
+            when "010" => 
+                Qs <= std_logic_vector(unsigned(Qs) - 1); 
+                q <= Qs;               
+            when "011" => 
+                Qs <= ECD & Qs(7 downto 1);
+                q <= Qs;
+            when "100" => 
+                Qs <= Qs(6 downto 0) & ECI;
+                q <= Qs;
+            when "101" => 
+                Qs <= Qs;
+                q <= Qs;
+            when "110" =>
+                Qs <= Qs(6 downto 0) & Qs(7);
+                q <= Qs;
+            when others => 
+                Gray(0) <= Qs(0) xor Qs(1);
+                Gray(1) <= Qs(1) xor Qs(2);
+                Gray(2) <= Qs(2) xor Qs(3); 
+                Gray(3) <= Qs(3) xor Qs(4);
+                Gray(4) <= Qs(4) xor Qs(5); 
+                Gray(5) <= Qs(5) xor Qs(6);
+                Gray(6) <= Qs(6) xor Qs(7);
+                Gray(7) <= Qs(7);
+                q <= Gray;
+        end case;
     end if;
     end process;
-end a_p8;
+end architecture;
 

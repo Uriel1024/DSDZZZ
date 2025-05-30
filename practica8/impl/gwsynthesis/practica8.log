@@ -1,13 +1,11 @@
 GowinSynthesis start
 Running parser ...
 Analyzing VHDL file '/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd'
-Analyzing entity 'p8'("/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd":6)
-Analyzing architecture 'a_p8'("/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd":16)
-Processing 'p8(a_p8)'("/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd":6)
+Analyzing entity 'p8'("/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd":5)
+Analyzing architecture 'a_p8'("/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd":15)
+Processing 'p8(a_p8)'("/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd":5)
 NOTE  (EX0101) : Current top module is "p8"
 [5%] Running netlist conversion ...
-WARN  (CV0016) : Input eco is unused("/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd":7)
-WARN  (CV0016) : Input eci is unused("/home/uriel/dsd/DSDZZZ/practica8/src/p8.vhd":7)
 Running device independent optimization ...
 [10%] Optimizing Phase 0 completed
 [15%] Optimizing Phase 1 completed
