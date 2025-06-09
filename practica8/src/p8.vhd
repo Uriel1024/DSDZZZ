@@ -1,80 +1,58 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+USE IEEE.STD_LOGIC_ARITH.ALL;
 
-entity p8 is
-    port( clk,clr,ECD, ECI: in std_logic;
-        c: in std_logic_vector(2 downto 0);
-        e: in std_logic_vector(7 downto 0);
-        q: inout std_logic_vector(7 downto 0);
-        CLKOUT : buffer std_logic
+ENTITY P8 IS 
+PORT(
+    CLK_50MHz, CLR : IN STD_LOGIC;
+    B : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+    E : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+    ECD, ECI : IN STD_LOGIC;
+    Q : INOUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 );
+END P8;
 
-end entity;
-
-architecture a_p8 of p8 is 
-SIGNAL CRISTAL : STD_LOGIC;
-SIGNAL CONTADOR : UNSIGNED (31 DOWNTO 0) := (OTHERS => '0');
-CONSTANT DIVISOR1 : INTEGER := 13500000;
-SIGNAL Qs   : std_logic_vector (7 downto 0) := (OTHERS => '0');
-SIGNAL Gray : std_logic_vector (7 downto 0) := (OTHERS => '0'); 
- 
-begin
---divisor de frecuencia
-process  (CLK)
+ARCHITECTURE A_P8 OF P8 IS
+    SIGNAL GRAY_COUNT : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL clk_1Hz   : STD_LOGIC := '0';
+    SIGNAL div_counter: INTEGER RANGE 0 TO 24999999 := 0;  -- 50,000,000 / 2 = 25,000,000
+BEGIN
+    -- Divisor de frecuencia: 50 MHz → 1 Hz (periodo de 1 segundo)
+    PROCESS(CLK_50MHz, CLR)
     BEGIN
-        IF RISING_EDGE(CLK) THEN
-            CRISTAL <= CLK;
-            IF CONTADOR = DIVISOR1 THEN
-                CONTADOR <= (OTHERS => '0');
-                CLKOUT <= NOT CLKOUT;
+        IF CLR = '0' THEN
+            div_counter <= 0;
+            clk_1Hz <= '0';
+        ELSIF RISING_EDGE(CLK_50MHz) THEN
+            IF div_counter = 24999999 THEN  -- 50MHz/1Hz = 50,000,000 → medio periodo = 25,000,000
+                div_counter <= 0;
+                clk_1Hz <= NOT clk_1Hz;
             ELSE
-                CONTADOR <= CONTADOR + 1;
+                div_counter <= div_counter + 1;
             END IF;
         END IF;
     END PROCESS;
 
---Logica principal del programa
-process(clk, clr, c)    
-    begin
-        if (clr = '0') then
-            q <= (others => '0');
-            Qs <= (others => '0');
-        elsif rising_edge(clk) then
-        case c is 
-            when "000" => 
-                Qs <= e;
-                q <= e; 
-            when "001" =>
-                Qs <= std_logic_vector(unsigned(Qs) + 1);   
-                q <= std_logic_vector(unsigned(Q) + 1);
-            when "010" => 
-                Qs <= std_logic_vector(unsigned(Qs) - 1); 
-                q <= Qs;               
-            when "011" => 
-                Qs <= ECD & Qs(7 downto 1);
-                q <= Qs;
-            when "100" => 
-                Qs <= Qs(6 downto 0) & ECI;
-                q <= Qs;
-            when "101" => 
-                Qs <= Qs;
-                q <= Qs;
-            when "110" =>
-                Qs <= Qs(6 downto 0) & Qs(7);
-                q <= Qs;
-            when others => 
-                Gray(0) <= Qs(0) xor Qs(1);
-                Gray(1) <= Qs(1) xor Qs(2);
-                Gray(2) <= Qs(2) xor Qs(3); 
-                Gray(3) <= Qs(3) xor Qs(4);
-                Gray(4) <= Qs(4) xor Qs(5); 
-                Gray(5) <= Qs(5) xor Qs(6);
-                Gray(6) <= Qs(6) xor Qs(7);
-                Gray(7) <= Qs(7);
-                q <= Gray;
-        end case;
-    end if;
-    end process;
-end architecture;
-
+    -- Lógica principal del registro operando a 1Hz
+    PROCESS(clk_1Hz, CLR)
+    BEGIN
+        IF CLR = '0' THEN
+            Q <= "00000000";
+            GRAY_COUNT <= (OTHERS => '0');
+        ELSIF RISING_EDGE(clk_1Hz) THEN
+            CASE B IS 
+                WHEN "000" => Q <= E;                         -- Carga paralela
+                WHEN "001" => Q <= Q + 1;                     -- Incremento binario
+                WHEN "010" => Q <= Q - 1;                     -- Decremento binario
+                WHEN "011" => Q <= ECD & Q(7 DOWNTO 1);       -- Desplazamiento derecha
+                WHEN "100" => Q <= Q(6 DOWNTO 0) & ECI;       -- Desplazamiento izquierda
+                WHEN "101" => Q <= Q;                         -- Mantener valor
+                WHEN "110" => Q <= Q(0) & Q(7 DOWNTO 1);      -- Rotación derecha
+                WHEN OTHERS =>                                -- Contador Gray
+                    GRAY_COUNT <= GRAY_COUNT + 1;
+                    Q <= GRAY_COUNT XOR ('0' & GRAY_COUNT(7 DOWNTO 1));
+            END CASE;
+        END IF;
+    END PROCESS;
+END A_P8;
